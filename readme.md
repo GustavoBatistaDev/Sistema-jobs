@@ -1,0 +1,1 @@
+Adicione seu email no settings para o sistema funcionar corretamente
