@@ -1,0 +1,135 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block 'head' %}
+
+
+
+<link rel="stylesheet" href="{% static 'jobs/css/perfil.css' %}">
+{% endblock %}
+{% block 'body' %}
+<br>
+<br>
+<div class="container">
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert {{message.tags}}">
+                {{message}}
+            </div>
+        {% endfor %}
+    {% endif %}
+<div style="width: 60%">
+<form action="{% url 'perfil' %}" method="POST">{% csrf_token %}
+<p>Username:</p>
+<input type="text" class="form-control" value="{{user.username}}" name="username">
+<br>
+<p>Email:</p>
+<input type="email" class="form-control" value="{{user.email}}" name="email">
+<br>
+<p>Primeiro nome:</p>
+<input type="text" class="form-control" value="{{user.first_name}}" name="primeiro_nome">
+<br>
+<p>Último nome:</p>
+<input type="text" class="form-control" value="{{user.last_name}}" name="ultimo_nome">
+
+<br>
+<input type="submit" class="btn btn-success btn-lg" value="Salvar alterações">
+</form>
+</div>
+<br>
+<hr class="borda-degrade">
+<br>
+<h4 class="titulo">Histórico</h4>
+
+
+<table style="background-color: #222; color: white;" class="table table-striped">
+<thead>
+<tr>
+<th scope="col">Imagem</th>
+<th scope="col">Título</th>
+<th scope="col">Categoria</th>
+<th scope="col">Descrição</th>
+<th scope="col">Status</th>
+</tr>
+</thead>
+<tbody>
+
+<!-- laço de repetição para iterar sobre cada job-->
+<!-- faz uma tabela com informações dos jobs-->
+{% for i in jobs%}
+<tr>
+<th scope="row"><img width="100px" src="{{i.referencias.all.0}}"></th>
+
+<td>{{i.titulo}}</td>
+
+
+<td>
+{% if i.categoria == 'EV'%}
+    Edição de vídeo
+{%else%}
+ Design
+{%endif%}
+
+</td>
+
+
+
+
+<td>{{i.descricao}}</td>
+
+<td>
+{% if i.status == 'AA'%}
+<span class="badge badge-info">Aguardando aprovação</span>
+{% elif i.status == 'C' %}
+<button class="badge badge-primary" data-toggle="modal" data-target="#modal-i-{{i.id}}">Em criação</button>
+{% else %}
+<span class="badge badge-success">Finalizado</span>
+{% endif %}
+</td>
+</tr>
+{% endfor%}
+<!-- fim da tabela com os jobs-->
+</tbody>
+</table>
+
+
+<!-- laço de repetição para iterar sobre cada job-->
+{% for i in jobs %}
+    {% if i.status == "C"%}
+    <div class="modal fade" id="modal-i-{{i.id}}" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+    <div style="background-color: #333;" class="modal-content">
+    <div class="modal-header">
+    <h5 style="font-size: 30px" class="modal-title titulo" id="exampleModalLabel">JOB:</h5>
+    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+    <span aria-hidden="true">&times;</span>
+    </button>
+    </div>
+    <div class="modal-body">
+    <h4 class="titulo-job">{{i.titulo}}</h4>
+    <br>
+    <h6 class="titulo-body">Status:</h6>
+
+  
+{% if i.status == 'C' %}
+    <a class="badge badge-primary">Em criação</a>
+{%endif%}
+    <h6 class="titulo-body">Prazo máximo para entrega:</h6>
+    <p>{{i.prazo_entrega}}</p>
+    <hr style="border-color: yellow">
+    <form action="{% url 'enviar_projeto'%}" method="POST" enctype="multipart/form-data">{%csrf_token%}
+        
+        <input type="file" class="form-control" placeholder="Enviar arquivos" name="file">
+        <br>
+        <input type="hidden" name="id" value={{i.id}}>
+        <input type="submit" value="Enviar" class="btn btn-success btn-lg">
+
+</form>
+</div>
+</div>
+</div>
+</div>
+{% endif %}
+{% endfor %}
+
+</div>
+{% endblock %}
